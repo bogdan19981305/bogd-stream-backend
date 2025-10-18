@@ -1,98 +1,138 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# bogd-stream-backend
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Monorepo service: **NestJS (REST/GraphQL)** + **PostgreSQL** + **Redis** (+ RedisInsight UI).
+Ниже — все порты, быстрый запуск и самые нужные команды.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+---
 
-## Description
+## ✨ Стек
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- **Backend:** NestJS 11 (TypeScript), GraphQL (Apollo)
+- **DB:** PostgreSQL 15
+- **Cache/Session:** Redis 7 (официальный клиент `redis@5`)
+- **UI для Redis:** RedisInsight
+- **ORM:** Prisma 6
+- **Package manager:** pnpm
+- **Docker:** docker-compose v2
 
-## Project setup
+---
 
-```bash
-$ pnpm install
+## 🔌 Порты и URL
+
+| Сервис                 | URL/Host                                                       | Порт (host → container)            | Примечание                                               |
+| ---------------------- | -------------------------------------------------------------- | ---------------------------------- | -------------------------------------------------------- |
+| **API (Nest)**         | [http://localhost:3000](http://localhost:3000)                 | 3000 → 3000 (локально)             | Запуск командой `pnpm dev` (по умолчанию). GraphQL ниже. |
+| **GraphQL Playground** | [http://localhost:3000/graphql](http://localhost:3000/graphql) | —                                  | Доступен после запуска API.                              |
+| **PostgreSQL**         | localhost                                                      | **5433 → 5432**                    | Поднят через Docker. DSN см. ниже.                       |
+| **Redis**              | localhost                                                      | **6379 → 6379**                    | Поднят через Docker. `REDIS_URI=redis://localhost:6379`. |
+| **RedisInsight (UI)**  | [http://localhost:5540](http://localhost:5540)                 | **5540 → 5540**                    | Подключать DB: host `localhost`, port `6379`.            |
+| **Prisma Studio**      | [http://localhost:5555](http://localhost:5555)                 | 5555 → 5555 (локально при запуске) | Старт: `pnpm db:studio`.                                 |
+
+> Если backend будет запущен **внутри docker-compose**, строки подключения меняются на `db:5432` и `redis:6379` (имена сервисов в сети compose).
+
+---
+
+## ⚙️ Переменные окружения (.env)
+
+Пример минимальной конфигурации:
+
+```env
+# PostgreSQL
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_DB=appdb
+
+# Backend
+DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost:5433/${POSTGRES_DB}?schema=public
+REDIS_URI=redis://localhost:6379
+NODE_ENV=development
+SESSION_SECRET=dev_secret
 ```
 
-## Compile and run the project
+> Если API в контейнере, то `DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?schema=public` и `REDIS_URI=redis://redis:6379`.
+
+---
+
+## 🐳 Docker
+
+### Частые команды Docker
 
 ```bash
-# development
-$ pnpm run start
+# поднять всё в фоне
+docker compose up -d
 
-# watch mode
-$ pnpm run start:dev
+# статус сервисов и логи
+docker compose ps
+docker compose logs -f db
+docker compose logs -f redis
+docker compose logs -f redisinsight
 
-# production mode
-$ pnpm run start:prod
+# перезапуск/остановка
+docker compose restart redis
+docker compose down          # остановить (данные останутся в volumes)
+# docker compose down -v     # остановить и УДАЛИТЬ данные volumes (осторожно)
+
+# быстрые проверки
+docker exec -it redis redis-cli ping   # -> PONG
 ```
 
-## Run tests
+---
+
+## 🧰 Скрипты проекта (pnpm)
 
 ```bash
-# unit tests
-$ pnpm run test
+pnpm dev           # старт backend с hot-reload (http://localhost:3000)
+pnpm start         # обычный старт
+pnpm build         # сборка (dist/)
+pnpm start:prod    # запуск собранного кода
 
-# e2e tests
-$ pnpm run test:e2e
+pnpm lint          # eslint --fix
+pnpm test          # unit-тесты
+pnpm test:watch    # watch mode
+pnpm test:cov      # coverage
 
-# test coverage
-$ pnpm run test:cov
+pnpm db:push       # prisma db push (применить схему)
+pnpm db:studio     # Prisma Studio (http://localhost:5555)
 ```
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+### Полезные однострочники
 
 ```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
+# применить схему и сгенерить клиент
+pnpm db:push && pnpm prisma generate
+
+# перезапустить только Redis
+docker compose restart redis
+
+# подключиться к Postgres из psql
+docker exec -it postgres psql -U ${POSTGRES_USER} -d ${POSTGRES_DB}
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+---
 
-## Resources
+## 🔒 Пароли и безопасность
 
-Check out a few resources that may come in handy when working with NestJS:
+- Для продакшена укажи пароль Redis: добавь к команде сервера `--requirepass <pwd>` и используй `REDIS_URI=redis://:<pwd>@redis:6379`.
+- Не коммить `.env` с секретами.
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+---
 
-## Support
+## 🧪 Troubleshooting
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+- **ECONNREFUSED к Redis** — сервис не запущен или неверный host. Проверь `docker compose ps` и `REDIS_URI`.
+- **API не видит БД** — проверь `DATABASE_URL` (порт 5433 с хоста / 5432 внутри compose).
+- **RedisInsight пустой** — добавь базу вручную: host `localhost`, port `6379`.
 
-## Stay in touch
+---
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+## 🗺️ Памятка по сетям Docker
 
-## License
+- Все сервисы в одной сети: `bogd-stream-backend`.
+- Из контейнера к контейнеру обращайся по имени сервиса: `db:5432`, `redis:6379`.
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+---
+
+## Контакты и поддержка
+
+- Стек и конфиг актуализированы под `redis@5` + `connect-redis@9`.
+- Вопросы/улучшения — см. Issues или пиши автору репо.
