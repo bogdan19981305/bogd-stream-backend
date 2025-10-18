@@ -13,7 +13,7 @@ export class AccountService {
         return this.prismaService.user.findMany()
     }
 
-    public async create(input: CreateUserInput) {
+    public async create(input: CreateUserInput): Promise<boolean> {
         const { email, password, username, displayName, avatar, bio } = input
 
         const isUsernameExists = await this.prismaService.user.findUnique({
@@ -37,7 +37,7 @@ export class AccountService {
         }
         const hashedPassword = await argon2.hash(password)
 
-        const user = await this.prismaService.user.create({
+        await this.prismaService.user.create({
             data: {
                 email,
                 password: hashedPassword,
@@ -48,6 +48,6 @@ export class AccountService {
             }
         })
 
-        return user
+        return true
     }
 }

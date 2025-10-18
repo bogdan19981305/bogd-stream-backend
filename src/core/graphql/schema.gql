@@ -28,9 +28,24 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
+"""Login user input"""
+input LoginInput {
+  """User login"""
+  login: String!
+
+  """User password"""
+  password: String!
+}
+
 type Mutation {
   """Create a new user"""
-  createUser(input: CreateUserInput!): UserModel!
+  createUser(input: CreateUserInput!): Boolean!
+
+  """Login user"""
+  login(data: LoginInput!): Boolean!
+
+  """Logout user"""
+  logout: Boolean!
 }
 
 type Query {

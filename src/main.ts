@@ -4,9 +4,9 @@ import { NestFactory } from '@nestjs/core'
 import { RedisStore } from 'connect-redis'
 import cookieParser from 'cookie-parser'
 import session from 'express-session'
+import { createClient } from 'redis'
 
 import { CoreModule } from './core.module'
-import { RedisService } from './core/redis/redis.service'
 import { ms, StringValue } from './shared/utils/ms.util'
 import { parseBoolean } from './shared/utils/parse-boolean.util'
 
@@ -14,7 +14,6 @@ async function bootstrap() {
     const app = await NestFactory.create(CoreModule)
 
     const config = app.get(ConfigService)
-    const redisService = app.get(RedisService)
 
     try {
         const cookieSecret = config.getOrThrow<string>('COOKIES_SECRET')
@@ -51,6 +50,14 @@ async function bootstrap() {
         const sessionSecure = config.getOrThrow<string>('SESSION_SECURE')
         const sessionFolder = config.getOrThrow<string>('SESSION_FOLDER')
 
+        const redisClient = createClient()
+        await redisClient.connect()
+
+        const redisStore = new RedisStore({
+            client: redisClient,
+            prefix: sessionFolder
+        })
+
         app.use(
             session({
                 secret: sessionSecret,
@@ -64,10 +71,7 @@ async function bootstrap() {
                     secure: parseBoolean(sessionSecure),
                     sameSite: 'lax'
                 },
-                store: new RedisStore({
-                    client: redisService.getClient(),
-                    prefix: sessionFolder
-                })
+                store: redisStore
             })
         )
     } catch (error) {

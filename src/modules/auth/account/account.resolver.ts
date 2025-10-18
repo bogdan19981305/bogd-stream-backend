@@ -13,13 +13,13 @@ export class AccountResolver {
         return this.accountService.findAll()
     }
 
-    @Mutation(() => UserModel, {
+    @Mutation(() => Boolean, {
         name: 'createUser',
         description: 'Create a new user'
     })
     public async create(
         @Args('input', { type: () => CreateUserInput }) input: CreateUserInput
-    ): Promise<UserModel> {
+    ): Promise<boolean> {
         return this.accountService.create(input)
     }
 }

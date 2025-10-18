@@ -1,4 +1,9 @@
-import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common'
+import {
+    Injectable,
+    Logger,
+    OnModuleDestroy,
+    OnModuleInit
+} from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { createClient, RedisClientType } from 'redis'
 
@@ -16,30 +21,30 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
             )
         })
 
-        this.client.on('error', err => console.error('❌ Redis Error:', err))
+        this.client.on('error', err => Logger.error('❌ Redis Error:', err))
 
         await this.client.connect()
-        console.log('✅ Redis connected')
+        Logger.log('✅ Redis connected')
     }
 
     async onModuleDestroy() {
         await this.client?.quit()
-        console.log('🧹 Redis connection closed')
+        Logger.log('🧹 Redis connection closed')
     }
 
     getClient(): RedisClientType {
         return this.client
     }
 
-    async set(key: string, value: string, ttl?: number) {
-        await this.client.set(key, value, ttl ? { EX: ttl } : undefined)
+    set(key: string, value: string, ttl?: number) {
+        return this.client.set(key, value, ttl ? { EX: ttl } : undefined)
     }
 
-    async get(key: string) {
+    get(key: string) {
         return this.client.get(key)
     }
 
-    async del(key: string) {
-        await this.client.del(key)
+    del(key: string) {
+        return this.client.del(key)
     }
 }
