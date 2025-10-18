@@ -22,7 +22,7 @@ Monorepo service: **NestJS (REST/GraphQL)** + **PostgreSQL** + **Redis** (+ Redi
 | Сервис                 | URL/Host                                                       | Порт (host → container)            | Примечание                                               |
 | ---------------------- | -------------------------------------------------------------- | ---------------------------------- | -------------------------------------------------------- |
 | **API (Nest)**         | [http://localhost:3002](http://localhost:3002)                 | 3000 → 3000 (локально)             | Запуск командой `pnpm dev` (по умолчанию). GraphQL ниже. |
-| **GraphQL Playground** | [http://localhost:3000/graphql](http://localhost:3000/graphql) | —                                  | Доступен после запуска API.                              |
+| **GraphQL Playground** | [http://localhost:3002/graphql](http://localhost:3002/graphql) | —                                  | Доступен после запуска API.                              |
 | **PostgreSQL**         | localhost                                                      | **5433 → 5432**                    | Поднят через Docker. DSN см. ниже.                       |
 | **Redis**              | localhost                                                      | **6379 → 6379**                    | Поднят через Docker. `REDIS_URI=redis://localhost:6379`. |
 | **RedisInsight (UI)**  | [http://localhost:5540](http://localhost:5540)                 | **5540 → 5540**                    | Подключать DB: host `localhost`, port `6379`.            |
