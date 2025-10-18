@@ -1,0 +1,68 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+"""Create user input"""
+input CreateUserInput {
+  """User avatar"""
+  avatar: String
+
+  """User bio"""
+  bio: String
+
+  """User display name"""
+  displayName: String!
+
+  """User email"""
+  email: String!
+
+  """User password"""
+  password: String!
+
+  """User username"""
+  username: String!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type Mutation {
+  """Create a new user"""
+  createUser(input: CreateUserInput!): UserModel!
+}
+
+type Query {
+  findAllUsers: [UserModel!]!
+}
+
+"""User model"""
+type UserModel {
+  """User avatar"""
+  avatar: String
+
+  """User bio"""
+  bio: String
+
+  """User created at"""
+  createdAt: DateTime!
+
+  """User display name"""
+  displayName: String!
+
+  """User email"""
+  email: String!
+
+  """User ID"""
+  id: ID!
+
+  """User password"""
+  password: String!
+
+  """User updated at"""
+  updatedAt: DateTime!
+
+  """User username"""
+  username: String!
+}
