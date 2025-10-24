@@ -28,6 +28,19 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
+type DeviceModel {
+  browser: String!
+  os: String!
+  type: String!
+}
+
+type LocationModel {
+  city: String!
+  country: String!
+  latitude: Float!
+  longitude: Float!
+}
+
 """Login user input"""
 input LoginInput {
   """User login"""
@@ -38,18 +51,37 @@ input LoginInput {
 }
 
 type Mutation {
+  clearSessionCookie: Boolean!
+
   """Create a new user"""
   createUser(input: CreateUserInput!): Boolean!
 
   """Login user"""
-  login(data: LoginInput!): Boolean!
+  login(data: LoginInput!): UserModel!
 
   """Logout user"""
   logout: Boolean!
+  removeSession(sessionId: String!): Boolean!
 }
 
 type Query {
   findAllUsers: [UserModel!]!
+  findCurrentUserSession: SessionModel!
+  findSessionsByUser: [SessionModel!]!
+  getProfile: UserModel!
+}
+
+type SessionMetadataModel {
+  device: DeviceModel
+  ip: String
+  location: LocationModel
+}
+
+type SessionModel {
+  createdAt: DateTime
+  id: String!
+  metadata: SessionMetadataModel
+  userId: String
 }
 
 """User model"""

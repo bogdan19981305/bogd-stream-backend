@@ -13,6 +13,20 @@ export class AccountService {
         return this.prismaService.user.findMany()
     }
 
+    public async me(id: string) {
+        const user = await this.prismaService.user.findUnique({
+            where: {
+                id
+            }
+        })
+
+        if (!user) {
+            throw new ConflictException('Пользователь не найден')
+        }
+
+        return user
+    }
+
     public async create(input: CreateUserInput): Promise<boolean> {
         const { email, password, username, displayName, avatar, bio } = input
 

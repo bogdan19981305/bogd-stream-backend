@@ -27,7 +27,9 @@
       ],
       "@prisma/generated/*": [
         "prisma/generated/*"
-      ]
+      ],
+        "@generated/*": ["generated/*"]
     }
-  }
+  },
+    "include": ["src", "generated"]
 }

@@ -7,6 +7,7 @@ import session from 'express-session'
 import { createClient } from 'redis'
 
 import { CoreModule } from './core.module'
+import { isProd } from './shared/utils/is-dev.util'
 import { ms, StringValue } from './shared/utils/ms.util'
 import { parseBoolean } from './shared/utils/parse-boolean.util'
 
@@ -65,7 +66,9 @@ async function bootstrap() {
                 resave: false,
                 saveUninitialized: false,
                 cookie: {
-                    domain: sessionDomain,
+                    ...(isProd(config) && sessionDomain
+                        ? { domain: sessionDomain }
+                        : {}),
                     maxAge: ms(sessionMaxAge),
                     httpOnly: parseBoolean(sessionHttpOnly),
                     secure: parseBoolean(sessionSecure),
