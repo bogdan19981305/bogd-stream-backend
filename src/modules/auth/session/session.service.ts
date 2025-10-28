@@ -43,10 +43,7 @@ export class SessionService {
                 if (session.userId === userId) {
                     userSessions.push({
                         ...session,
-                        id: (key ?? '').split(':')?.[1] as string,
-                        createdAt: session.createdAt
-                            ? new Date(session.createdAt)
-                            : new Date()
+                        id: (key ?? '').split(':')?.[1] as string
                     })
                 }
             }
@@ -64,7 +61,7 @@ export class SessionService {
             this.configService.getOrThrow<string>('SESSION_FOLDER')
 
         const sessionData = await this.redisService.get(
-            `${sessionFolder}:${sessionId}`
+            `${sessionFolder}${sessionId}`
         )
 
         const session = JSON.parse(sessionData || '{}')
@@ -151,8 +148,6 @@ export class SessionService {
         const sessionFolder =
             this.configService.getOrThrow<string>('SESSION_FOLDER')
 
-        await this.redisService.del(`${sessionFolder}:${sessionId}`)
-
-        return true
+        return this.redisService.del(`${sessionFolder}${sessionId}`)
     }
 }

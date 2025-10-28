@@ -46,7 +46,6 @@ export class SessionResolver {
         return this.sessionService.logout(req)
     }
 
-    @Authorization()
     @Mutation(() => Boolean, {
         name: 'clearSessionCookie'
     })

@@ -1,4 +1,4 @@
-import { Field, Float, GraphQLISODateTime, ObjectType } from '@nestjs/graphql'
+import { Field, Float, ObjectType } from '@nestjs/graphql'
 
 import {
     DeviceInfo,
@@ -53,8 +53,8 @@ export class SessionModel {
     @Field(() => String, { nullable: true })
     userId!: string
 
-    @Field(() => GraphQLISODateTime, { nullable: true })
-    createdAt?: Date
+    @Field(() => String, { nullable: true })
+    createdAt?: string
 
     @Field(() => SessionMetadataModel, { nullable: true })
     metadata?: SessionMetadataModel
