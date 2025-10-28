@@ -3,11 +3,15 @@ import * as argon2 from 'argon2'
 
 import { PrismaService } from '@/core/prisma/prisma.service'
 
+import { VerificationService } from '../verification/verification.service'
 import { CreateUserInput } from './inputs/create-user.input'
 
 @Injectable()
 export class AccountService {
-    public constructor(private readonly prismaService: PrismaService) {}
+    public constructor(
+        private readonly prismaService: PrismaService,
+        private readonly verificationService: VerificationService
+    ) {}
 
     public async findAll() {
         return this.prismaService.user.findMany()
@@ -51,7 +55,7 @@ export class AccountService {
         }
         const hashedPassword = await argon2.hash(password)
 
-        await this.prismaService.user.create({
+        const user = await this.prismaService.user.create({
             data: {
                 email,
                 password: hashedPassword,
@@ -61,6 +65,8 @@ export class AccountService {
                 bio
             }
         })
+
+        await this.verificationService.sendVeryficationToken(user)
 
         return true
     }

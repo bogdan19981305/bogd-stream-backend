@@ -12,6 +12,7 @@ import { type Request } from 'express'
 import { PrismaService } from '@/core/prisma/prisma.service'
 import { RedisService } from '@/core/redis/redis.service'
 import { getSessionMetadata } from '@/shared/utils/session-metadata.utils'
+import { destroySession, saveSession } from '@/shared/utils/session.util'
 
 import { LoginInput } from './inputs/login.input'
 
@@ -96,41 +97,11 @@ export class SessionService {
 
         const metaData = getSessionMetadata(req, userAgent)
 
-        return new Promise((resolve, reject) => {
-            req.session.createdAt = new Date()
-            req.session.userId = user.id
-            req.session.metadata = metaData
-
-            req.session.save(err => {
-                if (err) {
-                    console.error('Session save error:', err)
-                    return reject(
-                        new InternalServerErrorException(
-                            'Не удалось сохранить сессию'
-                        )
-                    )
-                }
-                resolve(user)
-            })
-        })
+        return saveSession(req, user, metaData)
     }
 
     public async logout(req: Request) {
-        return new Promise((resolve, reject) => {
-            req.session.destroy(err => {
-                if (err) {
-                    return reject(
-                        new InternalServerErrorException(
-                            'Не удалось удалить сессию'
-                        )
-                    )
-                }
-                req.res?.clearCookie(
-                    this.configService.getOrThrow<string>('SESSION_NAME')
-                )
-                resolve(true)
-            })
-        })
+        return destroySession(req, this.configService)
     }
 
     public clearSession(req: Request): boolean {

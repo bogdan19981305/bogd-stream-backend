@@ -1,6 +1,6 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma" 
+  output   = "../generated/prisma"
 }
 
 datasource db {
@@ -8,21 +8,46 @@ datasource db {
   url      = env("POSTGRES_URI")
 }
 
-
 model User {
-  id        String   @id @default(uuid())
+  id String @id @default(uuid())
 
-  email     String   @unique
-  password  String
+  email    String @unique
+  password String
 
-  username  String   @map("username") @unique
-  displayName String   @map("display_name")
+  username    String @unique @map("username")
+  displayName String @map("display_name")
 
   avatar String?
-  bio String?
+  bio    String?
+
+  isVerified Boolean @default(false) @map("is_verified")
+  isEmailVerified Boolean @default(false) @map("is_email_verified")
+  tokens Token[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("users")
+}
+
+model Token {
+  id String @id @default(uuid())
+
+  token     String    @unique
+  type      TokenType
+  expiresIn DateTime  @map("expires_in")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  User   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String? @map("user_id")
+
+  @@map("tokens")
+}
+
+enum TokenType {
+  PASSWORD_RESET
+  EMAIL_VERIFICATION
+
+  @@map("token_types")
 }

@@ -62,6 +62,9 @@ type Mutation {
   """Logout user"""
   logout: Boolean!
   removeSession(sessionId: String!): Boolean!
+
+  """Verify email"""
+  verifyEmail(data: VerificationInput!): UserModel!
 }
 
 type Query {
@@ -104,6 +107,12 @@ type UserModel {
   """User ID"""
   id: ID!
 
+  """User is email verified"""
+  isEmailVerified: Boolean!
+
+  """User is verified"""
+  isVerified: Boolean!
+
   """User password"""
   password: String!
 
@@ -112,4 +121,8 @@ type UserModel {
 
   """User username"""
   username: String!
+}
+
+input VerificationInput {
+  token: String!
 }
