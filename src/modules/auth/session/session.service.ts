@@ -1,7 +1,7 @@
 import {
+    BadRequestException,
     ConflictException,
     Injectable,
-    InternalServerErrorException,
     NotFoundException,
     UnauthorizedException
 } from '@nestjs/common'
@@ -11,6 +11,7 @@ import { type Request } from 'express'
 
 import { PrismaService } from '@/core/prisma/prisma.service'
 import { RedisService } from '@/core/redis/redis.service'
+import { VerificationService } from '@/modules/auth/verification/verification.service'
 import { getSessionMetadata } from '@/shared/utils/session-metadata.utils'
 import { destroySession, saveSession } from '@/shared/utils/session.util'
 
@@ -21,7 +22,8 @@ export class SessionService {
     public constructor(
         private readonly prismaService: PrismaService,
         private readonly configService: ConfigService,
-        private readonly redisService: RedisService
+        private readonly redisService: RedisService,
+        private readonly verificationService: VerificationService
     ) {}
 
     public async findByUser(req: Request) {
@@ -93,6 +95,13 @@ export class SessionService {
 
         if (!isPasswordValid) {
             throw new UnauthorizedException('Неверный пароль')
+        }
+
+        if (!user.isEmailVerified) {
+            await this.verificationService.sendVeryficationToken(user)
+            throw new BadRequestException(
+                'Пожалуйста, подтвердите вашу почту. На ваш email была отправлена ссылка для верификации.'
+            )
         }
 
         const metaData = getSessionMetadata(req, userAgent)

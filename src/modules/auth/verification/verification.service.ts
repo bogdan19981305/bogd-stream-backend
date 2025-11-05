@@ -54,11 +54,16 @@ export class VerificationService {
     }
 
     public async sendVeryficationToken(user: User) {
-        await generateToken(
+        const verificationToken = await generateToken(
             this.prismaService,
             user,
             TokenType.EMAIL_VERIFICATION,
             true
+        )
+
+        await this.mailService.sendVerificationToken(
+            user.email,
+            verificationToken.token
         )
 
         return true

@@ -2,6 +2,7 @@
     "singleQuote": true,
     "trailingComma": "none",
     "tabWidth": 4,
+    "parser": "typescript",
     "semi": false,
     "jsxSingleQuote": true,
     "arrowParens": "avoid",

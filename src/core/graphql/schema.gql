@@ -61,10 +61,28 @@ type Mutation {
 
   """Logout user"""
   logout: Boolean!
+
+  """Установить новый пароль"""
+  newPassword(data: NewPasswordInput!): Boolean!
   removeSession(sessionId: String!): Boolean!
+
+  """Сбросить пароль по email"""
+  resetPasswordByEmail(data: ResetPasswordInput!): Boolean!
 
   """Verify email"""
   verifyEmail(data: VerificationInput!): UserModel!
+}
+
+"""New password input"""
+input NewPasswordInput {
+  """New password"""
+  password: String!
+
+  """Confirm password"""
+  passwordRepeat: String!
+
+  """Token"""
+  token: String!
 }
 
 type Query {
@@ -72,6 +90,12 @@ type Query {
   findCurrentUserSession: SessionModel!
   findSessionsByUser: [SessionModel!]!
   getProfile: UserModel!
+}
+
+"""Reset password input"""
+input ResetPasswordInput {
+  """Email"""
+  email: String!
 }
 
 type SessionMetadataModel {
