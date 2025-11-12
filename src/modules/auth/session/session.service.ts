@@ -8,6 +8,7 @@ import {
 import { ConfigService } from '@nestjs/config'
 import * as argon2 from 'argon2'
 import { type Request } from 'express'
+import { TOTP } from 'otpauth'
 
 import { PrismaService } from '@/core/prisma/prisma.service'
 import { RedisService } from '@/core/redis/redis.service'
@@ -76,7 +77,7 @@ export class SessionService {
     }
 
     public async login(req: Request, input: LoginInput, userAgent: string) {
-        const { login, password } = input
+        const { login, password, pin } = input
 
         const user = await this.prismaService.user.findFirst({
             where: {
@@ -102,6 +103,26 @@ export class SessionService {
             throw new BadRequestException(
                 'Пожалуйста, подтвердите вашу почту. На ваш email была отправлена ссылка для верификации.'
             )
+        }
+
+        if (user.isTotpEnabled) {
+            if (!pin) {
+                return {
+                    message: 'Необходим код для завершения авторизации'
+                }
+            }
+
+            const totp = new TOTP({
+                issuer: 'BogdStream',
+                label: `${user.email}`,
+                algorithm: 'SHA1',
+                digits: 6,
+                secret: user.totpSecret as string
+            })
+
+            const delta = totp.validate({ token: pin })
+
+            if (delta === null) throw new BadRequestException('Неверный код')
         }
 
         const metaData = getSessionMetadata(req, userAgent)

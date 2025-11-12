@@ -3,6 +3,21 @@ import { Field, ID, ObjectType } from '@nestjs/graphql'
 
 @ObjectType({ description: 'User model' })
 export class UserModel implements User {
+    @Field(() => Boolean, { description: 'Account is deactivated' })
+    public isDeactivated: boolean
+
+    @Field(() => Date, {
+        description: 'Account deactivated time',
+        nullable: true
+    })
+    deactivatedAt: Date | null
+
+    @Field(() => Boolean, { description: 'Is TOTP enabled' })
+    public isTotpEnabled: boolean
+
+    @Field(() => String, { description: 'TOTP secret code', nullable: true })
+    public totpSecret: string | null
+
     @Field(() => ID, { description: 'User ID' })
     public id: string
 

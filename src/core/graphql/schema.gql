@@ -2,6 +2,14 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type AuthModel {
+  """info message"""
+  message: String
+
+  """user model"""
+  user: UserModel
+}
+
 """Create user input"""
 input CreateUserInput {
   """User avatar"""
@@ -28,10 +36,31 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
+"""Deactivation account data"""
+input DeactivateAccountInput {
+  """Account deactivated email"""
+  email: String!
+
+  """User password"""
+  password: String!
+
+  """TOTP pin-code"""
+  pin: String
+}
+
 type DeviceModel {
   browser: String!
   os: String!
   type: String!
+}
+
+"""Enable TOTP input"""
+input EnableTotpInput {
+  """User code"""
+  pin: String!
+
+  """User secret"""
+  secret: String!
 }
 
 type LocationModel {
@@ -48,6 +77,9 @@ input LoginInput {
 
   """User password"""
   password: String!
+
+  """TOTP pin-code"""
+  pin: String
 }
 
 type Mutation {
@@ -56,8 +88,13 @@ type Mutation {
   """Create a new user"""
   createUser(input: CreateUserInput!): Boolean!
 
+  """Deactivate user"""
+  deactivateAccount(data: DeactivateAccountInput!): AuthModel!
+  disableTOTP: Boolean!
+  enableTOTP(data: EnableTotpInput!): Boolean!
+
   """Login user"""
-  login(data: LoginInput!): UserModel!
+  login(data: LoginInput!): AuthModel!
 
   """Logout user"""
   logout: Boolean!
@@ -70,7 +107,7 @@ type Mutation {
   resetPasswordByEmail(data: ResetPasswordInput!): Boolean!
 
   """Verify email"""
-  verifyEmail(data: VerificationInput!): UserModel!
+  verifyEmail(data: VerificationInput!): AuthModel!
 }
 
 """New password input"""
@@ -89,6 +126,7 @@ type Query {
   findAllUsers: [UserModel!]!
   findCurrentUserSession: SessionModel!
   findSessionsByUser: [SessionModel!]!
+  generateTOTPSecret: TotpModel!
   getProfile: UserModel!
 }
 
@@ -111,6 +149,14 @@ type SessionModel {
   userId: String
 }
 
+type TotpModel {
+  """QR code url"""
+  qrcodeUrl: String!
+
+  """QR code secret"""
+  secret: String!
+}
+
 """User model"""
 type UserModel {
   """User avatar"""
@@ -122,6 +168,9 @@ type UserModel {
   """User created at"""
   createdAt: DateTime!
 
+  """Account deactivated time"""
+  deactivatedAt: DateTime
+
   """User display name"""
   displayName: String!
 
@@ -131,14 +180,23 @@ type UserModel {
   """User ID"""
   id: ID!
 
+  """Account is deactivated"""
+  isDeactivated: Boolean!
+
   """User is email verified"""
   isEmailVerified: Boolean!
+
+  """Is TOTP enabled"""
+  isTotpEnabled: Boolean!
 
   """User is verified"""
   isVerified: Boolean!
 
   """User password"""
   password: String!
+
+  """TOTP secret code"""
+  totpSecret: String
 
   """User updated at"""
   updatedAt: DateTime!

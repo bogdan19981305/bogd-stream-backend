@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { pretty, render } from '@react-email/render'
 
+import { DeactivateTemplate } from '@/modules/libs/mail/templates/deactivate.template'
 import VerificationTemplate from '@/modules/libs/mail/templates/verification.template'
 import { type SessionMetadata } from '@/shared/types/session-metadata.types'
 
@@ -29,14 +30,6 @@ export class MailService {
         return this.sendMail(email, 'Верификация аккаунта', html)
     }
 
-    private sendMail(email: string, subject: string, html: string) {
-        return this.mailerService.sendMail({
-            to: email,
-            subject,
-            html
-        })
-    }
-
     public async sendPasswordRecoveryToken(
         email: string,
         token: string,
@@ -50,5 +43,25 @@ export class MailService {
         )
 
         return this.sendMail(email, 'Сброс пароля', html)
+    }
+
+    public async sendAccountDeactivateToken(
+        email: string,
+        token: string,
+        metadata: SessionMetadata
+    ): Promise<any> {
+        const html = await pretty(
+            await render(DeactivateTemplate({ token, metadata }))
+        )
+
+        return this.sendMail(email, 'Деактивация аккаунта', html)
+    }
+
+    private sendMail(email: string, subject: string, html: string) {
+        return this.mailerService.sendMail({
+            to: email,
+            subject,
+            html
+        })
     }
 }

@@ -20,9 +20,15 @@ model User {
   avatar String?
   bio    String?
 
-  isVerified Boolean @default(false) @map("is_verified")
+  isVerified      Boolean @default(false) @map("is_verified")
   isEmailVerified Boolean @default(false) @map("is_email_verified")
-  tokens Token[]
+  tokens          Token[]
+
+  isTotpEnabled Boolean @default(false) @map("is_totp_enabled")
+  totpSecret    String? @map("totp_secret")
+
+  isDeactivated Boolean   @default(false) @map("is_deactivated")
+  deactivatedAt DateTime? @map("deactivated_at")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -48,6 +54,7 @@ model Token {
 enum TokenType {
   PASSWORD_RESET
   EMAIL_VERIFICATION
+  ACCOUNT_DEACTIVATE
 
   @@map("token_types")
 }

@@ -1,18 +1,21 @@
 import { Field, InputType } from '@nestjs/graphql'
 import {
+    IsEmail,
     IsNotEmpty,
+    IsOptional,
     IsString,
     Length,
     MaxLength,
     MinLength
 } from 'class-validator'
 
-@InputType({ description: 'Login user input' })
-export class LoginInput {
-    @Field(() => String, { description: 'User login' })
+@InputType({ description: 'Deactivation account data' })
+export class DeactivateAccountInput {
+    @Field(() => String, { description: 'Account deactivated email' })
     @IsString()
     @IsNotEmpty()
-    public login: string
+    @IsEmail()
+    public email: string
 
     @Field(() => String, { description: 'User password' })
     @IsNotEmpty()
@@ -23,7 +26,7 @@ export class LoginInput {
 
     @Field(() => String, { nullable: true, description: 'TOTP pin-code' })
     @IsString()
-    @IsNotEmpty()
+    @IsOptional()
     @Length(6, 6)
-    public pin?: string
+    public pin?: string | null
 }
